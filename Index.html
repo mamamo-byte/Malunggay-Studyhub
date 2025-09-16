@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Study Planner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .section {
+      margin: 20px 0;
+    }
+    input, button, select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin: 5px 0;
+    }
+    input[type="text"], input[type="date"], input[type="time"] {
+      width: calc(100% - 90px);
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      width: 80px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    ul {
+      list-style: disc;
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    li {
+      margin: 5px 0;
+    }
+    .schedule-item {
+      margin: 5px 0;
+      padding: 8px;
+      background: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+      border-radius: 6px;
+    }
+    .quiz-card {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .score {
+      margin-top: 15px;
+      padding: 10px;
+      background: #eaf7ea;
+      border: 1px solid #4CAF50;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #2c662d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Group Study Planner</h1>
+
+    <!-- Members -->
+    <div class="section">
+      <h2>👥 Members</h2>
+      <input type="text" id="memberInput" placeholder="Enter member name">
+      <button onclick="addMember()">Add</button>
+      <ul id="memberList"></ul>
+    </div>
+
+    <!-- Topics -->
+    <div class="section">
+      <h2>📝 Topics</h2>
+      <input type="text" id="topicInput" placeholder="Enter study topic">
+      <button onclick="addTopic()">Add</button>
+      <ul id="topicList"></ul>
+    </div>
+
+    <!-- Schedule -->
+    <div class="section">
+      <h2>📅 Schedule</h2>
+      <input type="text" id="scheduleTopic" placeholder="Topic">
+      <input type="date" id="scheduleDate">
+      <input type="time" id="scheduleTime">
+      <button onclick="addSchedule()">Add</button>
+      <div id="scheduleList"></div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="section">
+      <h2>❓ Quiz Time</h2>
+      <input type="text" id="quizQuestion" placeholder="Enter question">
+      <input type="text" id="quizOptionA" placeholder="Option A">
+      <input type="text" id="quizOptionB" placeholder="Option B">
+      <input type="text" id="quizOptionC" placeholder="Option C">
+      <select id="quizAnswer">
+        <option value="A">Correct: A</option>
+        <option value="B">Correct: B</option>
+        <option value="C">Correct: C</option>
+      </select>
+      <button onclick="addQuiz()">Add</button>
+
+      <div id="quizList"></div>
+      <button onclick="submitQuiz()" style="margin-top:10px; width:auto;">Submit Quiz</button>
+      <div id="quizScore"></div>
+    </div>
+  </div>
+
+  <script>
+    // Members
+    function addMember() {
+      const input = document.getElementById("memberInput");
+      const list = document.getElementById("memberList");
+      if (input.value.trim() !== "") {
+        const li = document.createElement("li");
+        li.textContent = input.value;
+        list.appendChild(li);
+        input.value = "";
+      }
+    }
+
+    // Topics
+    function addTopic() {
+      const input = document.getElementById("topicInput");
+      const list = document.getElementById("topicList");
+      if (input.value.trim() !== "") {
+        const li = document.createElement("li");
+        li.textContent = input.value;
+        list.appendChild(li);
+        input.value = "";
+      }
+    }
+
+    // Schedule
+    function addSchedule() {
+      const topic = document.getElementById("scheduleTopic").value;
+      const date = document.getElementById("scheduleDate").value;
+      const time = document.getElementById("scheduleTime").value;
+      const list = document.getElementById("scheduleList");
+
+      if (topic.trim() !== "" && date !== "" && time !== "") {
+        const div = document.createElement("div");
+        div.classList.add("schedule-item");
+        div.textContent = `${topic} — ${date} at ${time}`;
+        list.appendChild(div);
+
+        document.getElementById("scheduleTopic").value = "";
+        document.getElementById("scheduleDate").value = "";
+        document.getElementById("scheduleTime").value = "";
+      }
+    }
+
+    // Quiz
+    let quizData = [];
+
+    function addQuiz() {
+      const q = document.getElementById("quizQuestion").value;
+      const a = document.getElementById("quizOptionA").value;
+      const b = document.getElementById("quizOptionB").value;
+      const c = document.getElementById("quizOptionC").value;
+      const ans = document.getElementById("quizAnswer").value;
+      const quizList = document.getElementById("quizList");
+
+      if (q && a && b && c) {
+        const index = quizData.length;
+        quizData.push({ question: q, options: { A: a, B: b, C: c }, answer: ans });
+
+        const div = document.createElement("div");
+        div.classList.add("quiz-card");
+        div.innerHTML = `
+          <p><b>${q}</b></p>
+          <label><input type="radio" name="q${index}" value="A"> A. ${a}</label><br>
+          <label><input type="radio" name="q${index}" value="B"> B. ${b}</label><br>
+          <label><input type="radio" name="q${index}" value="C"> C. ${c}</label><br>
+        `;
+        quizList.appendChild(div);
+
+        document.getElementById("quizQuestion").value = "";
+        document.getElementById("quizOptionA").value = "";
+        document.getElementById("quizOptionB").value = "";
+        document.getElementById("quizOptionC").value = "";
+      }
+    }
+
+    function submitQuiz() {
+      let score = 0;
+      quizData.forEach((quiz, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected && selected.value === quiz.answer) {
+          score++;
+        }
+      });
+      const result = document.getElementById("quizScore");
+      result.innerHTML = `<div class="score">You got ${score} / ${quizData.length} correct ✅</div>`;
+    }
+  </script>
+</body>
+</html>
